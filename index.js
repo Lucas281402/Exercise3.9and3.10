@@ -26,6 +26,10 @@ let persons = [
   },
 ];
 
+const generateID = () => {
+  return Math.floor(Math.random() * 1000000) + 1;
+}
+
 app.get("/api/persons", (request, response) => {
   response.json(persons);
 });
@@ -56,7 +60,7 @@ app.delete("/api/persons/:id", (request, response) => {
 
 app.post("/api/persons", (request, response) => {
   const body = request.body;
-  const id = Math.floor(Math.random() * 1000000) + 1;
+  const id = generateID()
 
   const person = {
     id: id,
