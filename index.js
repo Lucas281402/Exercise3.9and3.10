@@ -28,7 +28,7 @@ let persons = [
 
 const generateID = () => {
   return Math.floor(Math.random() * 1000000) + 1;
-}
+};
 
 app.get("/api/persons", (request, response) => {
   response.json(persons);
@@ -60,7 +60,7 @@ app.delete("/api/persons/:id", (request, response) => {
 
 app.post("/api/persons", (request, response) => {
   const body = request.body;
-  const id = generateID()
+  const id = generateID();
 
   const person = {
     id: id,
@@ -68,8 +68,16 @@ app.post("/api/persons", (request, response) => {
     number: body.number,
   };
 
-  persons = persons.concat(person);
-  response.json(person);
+  const checkName = persons.find((p) => p.name === person.name);
+
+  if (!person.name || !person.number) {
+    response.status(404).json({ error: "The name or number data is missing" });
+  } else if (checkName) {
+    response.status(404).json({ error: "Name must be unique" });
+  } else {
+    persons = persons.concat(person);
+    response.json(person);
+  }
 });
 
 const PORT = 3001;
