@@ -46,24 +46,23 @@ app.delete("/api/persons/:id", (request, response) => {
 });
 
 app.post("/api/persons", (request, response) => {
-  const body = request.body;
-  const id = generateID();
+  const body = request.body
 
-  const person = {
-    id: id,
+  const person = new Person({
     name: body.name,
     number: body.number,
-  };
+  });
 
-  const checkName = persons.find((p) => p.name === person.name);
+  //const checkName = persons.find((p) => p.name === person.name);
 
   if (!person.name || !person.number) {
     response.status(404).json({ error: "The name or number data is missing" });
-  } else if (checkName) {
+  }/* else if (checkName) {
     response.status(404).json({ error: "Name must be unique" });
-  } else {
-    persons = persons.concat(person);
-    response.json(person);
+  }*/ else {
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+    })
   }
 });
 
