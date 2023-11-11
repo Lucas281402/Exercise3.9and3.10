@@ -49,14 +49,14 @@ app.get("/api/info", (request, response, next) => {
 });
 
 app.get("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  const person = persons.find((person) => person.id === id);
+  Person.findById(request.params.id).then(personFound => {
+    if (personFound) {
+      response.json(personFound);
+    } else {
+      response.status(204).end();
+    }
+  })
 
-  if (person) {
-    response.json(person);
-  } else {
-    response.status(204).end();
-  }
 });
 
 app.delete("/api/persons/:id", (request, response, next) => {
@@ -69,30 +69,53 @@ app.delete("/api/persons/:id", (request, response, next) => {
     });
 });
 
-app.post("/api/persons", (request, response, next) => {
+app.put("/api/persons/:id", (request, response, next) => {
   const body = request.body;
 
+  const newPerson = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Person.findByIdAndUpdate(request.params.id, newPerson, { new: true })
+    .then((updatedPerson) => {
+      response.json(updatedPerson);
+    })
+    .catch((error) => {
+      next(error);
+    });
+});
+
+app.post("/api/persons", (request, response, next) => {
+  const body = request.body;
+  
   const person = new Person({
     name: body.name,
     number: body.number,
   });
-
-  //const checkName = persons.find((p) => p.name === person.name);
-
-  if (!person.name || !person.number) {
-    response.status(404).json({ error: "The name or number data is missing" });
-  } /* else if (checkName) {
-      response.status(404).json({ error: "Name must be unique" });
-    }*/ else {
-    person
-      .save()
-      .then((savedPerson) => {
-        response.json(savedPerson);
-      })
-      .catch((error) => {
-        next(error);
-      });
-  }
+  
+  Person.findOne({ name: body.name }).then((repeatedPerson) => {
+    if (repeatedPerson) {
+        Person.findByIdAndUpdate(request.params.id, person, { new: true })
+          .then((updatedPerson) => {
+            response.json(updatedPerson);
+          })
+          .catch((error) => {
+            next(error);
+          });
+        } else if (!person.name || !person.number) {
+          response.status(404).json({ error: "The name or number data is missing" });
+        } else {
+          person
+            .save()
+            .then((savedPerson) => {
+              response.json(savedPerson);
+            })
+            .catch((error) => {
+              next(error);
+            });
+        } 
+  });
 });
 
 app.use(errorHandler);
