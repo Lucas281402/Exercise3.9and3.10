@@ -12,18 +12,33 @@ mongoose
   });
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minLength: 3,
+    required: true,
+  },
+  number: {
+    type: String,
+    required: true,
+  },
 });
 
-const Person = mongoose.model("Person", personSchema);
+personSchema.set("toJSON", {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
+});
 
-personSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id.toString()
-        delete returnedObject._id
-        delete returnedObject.__v
-    }
-})
+personSchema.path('name').validate((name) => {
+  if (name.length < 3) {
+    throw new Error('Path `name` `{VALUE}` is shorter than the minimun allowed length (3)')
+  }
+  return true
+},
+  'Person validation failed: Name: Path `name` `{VALUE}` is shorter than the minimun allowed length (3)')
+
+const Person = mongoose.model("Person", personSchema);
 
 module.exports = Person;
