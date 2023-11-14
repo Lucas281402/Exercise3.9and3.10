@@ -68,7 +68,7 @@ app.put("/api/persons/:id", (request, response, next) => {
     number: body.number,
   };
 
-  const opts = { runValidators: true }
+  const opts = { runValidators: true };
 
   Person.findByIdAndUpdate(request.params.id, newPerson, opts, { new: true })
     .then((updatedPerson) => {
@@ -87,7 +87,7 @@ app.post("/api/persons", (request, response, next) => {
     number: body.number,
   });
 
-  const opts = { runValidators: true }
+  const opts = { runValidators: true };
 
   Person.findOne({ name: body.name }).then((repeatedPerson) => {
     if (repeatedPerson) {
@@ -98,10 +98,6 @@ app.post("/api/persons", (request, response, next) => {
         .catch((error) => {
           next(error);
         });
-    } else if (!person.name || !person.number) {
-      response
-        .status(404)
-        .json({ error: "The name or number data is missing" });
     } else {
       person
         .save()
@@ -119,8 +115,8 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.name);
   if (error.name === "CastError") {
     response.status(400).send({ error: "malformated id" });
-  } else if (error.name === 'ValidationError') {
-    response.status(400).json({ error: error.message })
+  } else if (error.name === "ValidationError") {
+    response.status(400).json({ error: error.message });
   }
 
   next(error);

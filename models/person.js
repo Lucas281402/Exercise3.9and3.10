@@ -20,6 +20,15 @@ const personSchema = new mongoose.Schema({
   number: {
     type: String,
     required: true,
+    minLength: 8,
+    validate: {
+      validator: (n) => {
+        return /^(\d{2}-\d{6}|\d{3}-d{6})$/.test(n);
+      },
+      message: (props) =>
+        `${props.value} The number must be prefixed with 2 or 3 numbers!`,
+    },
+    required: [true, "User Phone number required"],
   },
 });
 
@@ -31,13 +40,14 @@ personSchema.set("toJSON", {
   },
 });
 
-personSchema.path('name').validate((name) => {
+personSchema.path("name").validate((name) => {
   if (name.length < 3) {
-    throw new Error('Path `name` `{VALUE}` is shorter than the minimun allowed length (3)')
+    throw new Error(
+      "Path `name` `{VALUE}` is shorter than the minimun allowed length (3)"
+    );
   }
-  return true
-},
-  'Person validation failed: Name: Path `name` `{VALUE}` is shorter than the minimun allowed length (3)')
+  return true;
+}, "Person validation failed: Name: Path `name` `{VALUE}` is shorter than the minimun allowed length (3)");
 
 const Person = mongoose.model("Person", personSchema);
 
